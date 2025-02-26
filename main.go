@@ -11,6 +11,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 )
 
+// Opts contains the command line options
 type Opts struct {
 	Verbose           bool                 `short:"v" long:"verbose" description:"Show verbose debug information"`
 	Input             string               `short:"i" long:"input" description:"Input folder path" required:"true" default:"."`
@@ -32,7 +33,11 @@ const hardIgnore = ".git/*;.gitignore;.vscode/*;.contexify.yml"
 
 var opts Opts
 
-var revision = "local"
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 func main() {
 	// Parse command line arguments
@@ -51,10 +56,10 @@ func main() {
 
 	log.SetupLog(opts.Verbose, false)
 
-	log.Infof("Contexify %s\n", revision)
+	log.Infof("Contexify %s, commit %s, built at %s", version, commit, date)
 	log.Debugf("Options: %+v", opts)
 
-	exclude := strings.Join([]string{hardIgnore, opts.Exclude}, ";")
+	exclude := hardIgnore + ";" + opts.Exclude
 	opts.Exclude = exclude
 
 	err = app.Run(app.RunOptions{

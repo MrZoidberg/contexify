@@ -13,7 +13,7 @@ import (
 // "chars" is the char count divided by 4
 // "max" is the max of word and char
 // "min" is the min of word and char
-func EstimateTokens(text string, method string) (int, error) {
+func EstimateTokens(text, method string) (int, error) {
 	wordCount := len(strings.Fields(text))
 	charCount := len(text)
 	tokensCountWordEst := float64(wordCount) / 0.75
@@ -32,7 +32,7 @@ func EstimateTokens(text string, method string) (int, error) {
 	case "min":
 		output = math.Min(tokensCountWordEst, tokensCountCharEst)
 	default:
-		return 0, errors.New("Invalid method. Use 'average', 'words', 'chars', 'max', or 'min'.")
+		return 0, errors.New("invalid method. Use 'average', 'words', 'chars', 'max', or 'min'")
 	}
 
 	return int(output), nil

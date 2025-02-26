@@ -13,20 +13,31 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
+// TokenizerOptions contains options for the tokenizer
 type TokenizerOptions struct {
+	// Skip skips calculating token count
 	Skip bool
 }
 
+// RunOptions contains options for the Run function
 type RunOptions struct {
-	Input            string
-	Output           string
-	Include          []string
-	Exclude          []string
+	// Input folder path
+	Input string
+	// Output file path
+	Output string
+	// Include file patterns separated by semicolon
+	Include []string
+	// Exclude file patterns separated by semicolon
+	Exclude []string
+	// DisableGitignore disables usage of .gitignore file to exclude files
 	DisableGitignore bool
-	HideTree         bool
-	NotRecursive     bool
-	Delimiter        string
-
+	// HideTree disables adding folder tree to the context
+	HideTree bool
+	// NotRecursive disables including subfolders
+	NotRecursive bool
+	// Delimiter between files in output
+	Delimiter string
+	// Tokenizer options
 	Tokenizer TokenizerOptions
 }
 
@@ -49,7 +60,7 @@ func writeFile(path string, data *[]byte, delimiter string, file *realOS.File, o
 	if err != nil {
 		return 0, err
 	}
-	if len(delimiter) > 0 {
+	if delimiter != "" {
 		_, err = file.WriteAt([]byte(delimiter), offset+int64(n1)+int64(n2))
 		if err != nil {
 			return 0, err
@@ -72,7 +83,6 @@ func process(paths []string, writeTree bool, output, delimiter string) (processi
 		return processingResult{}, err
 	}
 	defer out.Close()
-	// writer := bufio.NewWriter(out)
 
 	// map folder to files
 	folderMap := make(map[string][]string)
@@ -104,7 +114,7 @@ func process(paths []string, writeTree bool, output, delimiter string) (processi
 			if err != nil {
 				return processingResult{}, err
 			}
-			currentOffset += int64(fileInfo.Size()) + calculateFileHeaderSize(file) + int64(len(delimiter))
+			currentOffset += fileInfo.Size() + calculateFileHeaderSize(file) + int64(len(delimiter))
 		}
 	}
 
@@ -123,17 +133,13 @@ func process(paths []string, writeTree bool, output, delimiter string) (processi
 			for _, file := range files {
 				data, err := os.ReadFile(file)
 				if err != nil {
-					select {
-					case errChan <- err:
-					}
+					errChan <- err
 					return
 				}
 				// estimate tokens
 				tokens, err := EstimateTokens(string(data), "max")
 				if err != nil {
-					select {
-					case errChan <- err:
-					}
+					errChan <- err
 					return
 				}
 				totalTokens += tokens
@@ -141,13 +147,11 @@ func process(paths []string, writeTree bool, output, delimiter string) (processi
 				// write header and data at the given offset.
 				n, err := writeFile(file, &data, delimiter, out, offset)
 				if err != nil {
-					select {
-					case errChan <- err:
-					}
+					errChan <- err
 					return
 				}
 				// Move offset by the number of bytes written.
-				offset += int64(n)
+				offset += n
 			}
 		}(folder, files)
 	}
@@ -169,6 +173,7 @@ func process(paths []string, writeTree bool, output, delimiter string) (processi
 	}, nil
 }
 
+// Run runs the processing of the input folder and writes the output to the output file
 func Run(options RunOptions) error {
 	// Validate options
 	if err := validateOptions(options); err != nil {

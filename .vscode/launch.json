@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["/i", ".", "/o", ".output"]
+            "args": ["/i", ".", "/o", "code.txt"]
         }
     ]
 }
