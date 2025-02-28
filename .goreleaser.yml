@@ -44,5 +44,5 @@ archives:
         formats: ['zip']
     files:
       - LICENSE
-      - README.md
+      - readme.md
 
