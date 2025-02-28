@@ -66,7 +66,4 @@ This project is licensed under the MIT License.
 
 ## Author
 
-Maintained by **MrZoidberg**.
-
----
-For more information, visit [GitHub Repository](https://github.com/MrZoidberg/contexify).
+Maintained by [**MrZoidberg**](https://github.com/MrZoidberg).
