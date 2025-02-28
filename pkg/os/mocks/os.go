@@ -7,14 +7,23 @@ import (
 
 // MockFile represents a mock implementation of os.File
 type MockFile struct {
-	WriteFunc func(b []byte) (n int, err error)
-	CloseFunc func() error
+	WriteFunc   func(b []byte) (n int, err error)
+	WriteAtFunc func(b []byte, off int64) (n int, err error)
+	CloseFunc   func() error
 }
 
 // Write calls the WriteFunc if defined or returns default values
 func (m *MockFile) Write(b []byte) (n int, err error) {
 	if m.WriteFunc != nil {
 		return m.WriteFunc(b)
+	}
+	return len(b), nil
+}
+
+// WriteAt calls the WriteAtFunc if defined or returns default values
+func (m *MockFile) WriteAt(b []byte, off int64) (n int, err error) {
+	if m.WriteAtFunc != nil {
+		return m.WriteAtFunc(b, off)
 	}
 	return len(b), nil
 }

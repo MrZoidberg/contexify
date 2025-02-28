@@ -35,5 +35,5 @@ func EstimateTokens(text, method string) (int, error) {
 		return 0, errors.New("invalid method. Use 'average', 'words', 'chars', 'max', or 'min'")
 	}
 
-	return int(output), nil
+	return int(math.Ceil(output)), nil
 }

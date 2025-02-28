@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	realOS "os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -50,7 +49,11 @@ func calculateFileHeaderSize(path string) int64 {
 	return getFileHeaderSize
 }
 
-func writeFile(path string, data *[]byte, delimiter string, file *realOS.File, offset int64) (int64, error) {
+type fileWriter interface {
+	WriteAt(b []byte, off int64) (n int, err error)
+}
+
+func writeFile(path string, data *[]byte, delimiter string, file fileWriter, offset int64) (int64, error) {
 	header := getFileHeader(path)
 	n1, err := file.WriteAt([]byte(header), offset)
 	if err != nil {
@@ -74,7 +77,9 @@ type processingResult struct {
 	totalTokens int
 }
 
-func process(paths []string, writeTree bool, output, delimiter string) (processingResult, error) {
+type estimateTokensFunc func(text, method string) (int, error)
+
+func process(paths []string, writeTree bool, output, delimiter string, estimateTokens estimateTokensFunc) (processingResult, error) {
 	currentOffset := int64(0)
 	totalTokens := 0
 
@@ -137,7 +142,7 @@ func process(paths []string, writeTree bool, output, delimiter string) (processi
 					return
 				}
 				// estimate tokens
-				tokens, err := EstimateTokens(string(data), "max")
+				tokens, err := estimateTokens(string(data), "max")
 				if err != nil {
 					errChan <- err
 					return
@@ -202,7 +207,7 @@ func Run(options RunOptions) error {
 	}
 	startTime := time.Now()
 
-	result, err := process(filePaths, !options.HideTree, options.Output, options.Delimiter)
+	result, err := process(filePaths, !options.HideTree, options.Output, options.Delimiter, EstimateTokens)
 	if err != nil {
 		log.Errorf("error processing files: %v", err)
 		return fmt.Errorf("error processing files: %v", err)
