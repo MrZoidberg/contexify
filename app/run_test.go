@@ -160,13 +160,13 @@ func TestProcess_Success(t *testing.T) {
 	// Create two temporary files with known content.
 	file1Path := tempDir + "/file1.txt"
 	content1 := []byte("hello world")
-	if err := os.WriteFile(file1Path, content1, 0644); err != nil {
+	if err := os.WriteFile(file1Path, content1, 0o644); err != nil {
 		t.Fatalf("WriteFile error for file1: %v", err)
 	}
 
 	file2Path := tempDir + "/file2.txt"
 	content2 := []byte("Go testing!")
-	if err := os.WriteFile(file2Path, content2, 0644); err != nil {
+	if err := os.WriteFile(file2Path, content2, 0o644); err != nil {
 		t.Fatalf("WriteFile error for file2: %v", err)
 	}
 
@@ -245,7 +245,7 @@ func TestProcess_Error(t *testing.T) {
 }
 
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || (len(s) > 0 && indexOf(s, substr) >= 0))
+	return len(s) >= len(substr) && (s == substr || (s != "" && indexOf(s, substr) >= 0))
 }
 
 func indexOf(s, substr string) int {
