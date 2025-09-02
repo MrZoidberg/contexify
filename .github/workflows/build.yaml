@@ -19,13 +19,13 @@ jobs:
         id: go
 
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: build and test
         run: |
           go test -v -timeout=100s
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
           version: latest
